@@ -49,8 +49,10 @@ function spawnAuthFlow(name) {
       cmd = 'claude';
       args = ['auth', 'login'];
     } else {
-      cmd = 'gcloud';
-      args = ['auth', 'application-default', 'login'];
+      // Gemini handles its own auth on first interactive run.
+      // Spawn it normally — it will prompt for Google login.
+      cmd = 'gemini';
+      args = [];
     }
 
     const child = pty.spawn(cmd, args, {
