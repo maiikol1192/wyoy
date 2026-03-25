@@ -64,16 +64,45 @@ async function run(options = {}) {
   let isAuth = auth.checkEngine(engine);
   if (!isAuth) {
     log.warn(`${engine} is not authenticated.`);
-    log.info('Opening login flow...');
-    const success = await auth.spawnAuthFlow(engine);
-    if (success) {
-      isAuth = auth.checkEngine(engine);
+    const authAction = await prompt(`${engine} is not authenticated. What do you want to do?`, [
+      { label: `Authenticate ${engine} now`, value: 'auth', default: true },
+      { label: `Switch to ${engine === 'claude' ? 'gemini' : 'claude'} instead`, value: 'switch' },
+      { label: 'Exit', value: 'exit' },
+    ]);
+
+    if (authAction === 'exit') {
+      process.exit(0);
     }
-    if (!isAuth) {
-      log.error(`${engine} authentication failed.`);
+
+    if (authAction === 'switch') {
       const other = engine === 'claude' ? 'gemini' : 'claude';
-      log.info(`Try: wyoy --engine ${other}`);
-      process.exit(1);
+      const otherPath = platform.resolveEngine(other);
+      if (!otherPath) {
+        log.error(`${other} CLI not found either. Install at least one engine.`);
+        process.exit(1);
+      }
+      engine = other;
+      isAuth = auth.checkEngine(engine);
+      if (!isAuth) {
+        log.warn(`${engine} is not authenticated either.`);
+        const retryAuth = await prompt(`Authenticate ${engine}?`, [
+          { label: 'Yes', value: 'yes', default: true },
+          { label: 'No, exit', value: 'no' },
+        ]);
+        if (retryAuth === 'no') process.exit(0);
+      }
+    }
+
+    if (!isAuth) {
+      log.info(`Opening ${engine} login flow...`);
+      const success = await auth.spawnAuthFlow(engine);
+      if (success) {
+        isAuth = auth.checkEngine(engine);
+      }
+      if (!isAuth) {
+        log.error(`${engine} authentication failed.`);
+        process.exit(1);
+      }
     }
   }
   log.success(`${engine} authenticated.`);
