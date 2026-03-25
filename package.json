@@ -13,6 +13,12 @@
     "node": ">=18.0.0"
   },
   "os": ["darwin"],
+  "files": [
+    "bin/",
+    "src/",
+    "package.json",
+    "README.md"
+  ],
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^12.0.0",
