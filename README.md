@@ -5,6 +5,13 @@ CLI wrapper for Claude Code and Gemini CLI with automatic failover.
 ## Install
 
 ```bash
+# From GitHub (available now)
+git clone https://github.com/maiikol1192/wyoy.git
+cd wyoy
+npm install
+npm link
+
+# From npm (coming soon)
 npm install -g wyoy
 ```
 
